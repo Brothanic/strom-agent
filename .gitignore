@@ -1,0 +1,23 @@
+# Local credentials; a placeholder-only template may be committed later.
+.env
+.env.*
+!.env.example
+.claude/settings.local.json
+
+# Runtime data. Frozen data/fixtures must remain tracked.
+data/cache/
+data/ledger.jsonl
+traces/
+reports/
+
+# Python/tooling artifacts.
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+.DS_Store
