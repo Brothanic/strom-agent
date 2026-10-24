@@ -50,8 +50,11 @@ Updated: 2026-10-24, Europe/Berlin.
   `SYNCTHING.md`, which exists only on the owner's machines.
 - `.vscode/settings.json` only holds a workspace-relative interpreter path and
   stays in the repository.
-- Not pushed yet: no GitHub repository or remote exists, and `gh` is not
-  logged in (SSH to GitHub works).
+- Pushed to the public repository https://github.com/Brothanic/strom-agent
+  (`origin`, SSH), `main` only. Commits are authored as `Brothanic
+  <47241463+Brothanic@users.noreply.github.com>`, set in this repository's
+  local Git config; both commits were rewritten to that identity before the
+  first push. T3 checkpoint refs stay local and are not pushed.
 
 ## Owner decisions for paid runs (resolved 2026-10-21)
 
