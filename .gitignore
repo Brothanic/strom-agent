@@ -21,3 +21,11 @@ __pycache__/
 build/
 dist/
 .DS_Store
+
+# Syncthing's local marker/version store; never commit device-local versions.
+.stfolder/
+.stversions/
+# Personal device-sync setup; kept on disk, not in the repository.
+SYNCTHING.md
+.stignore
+syncthing-ignore.txt

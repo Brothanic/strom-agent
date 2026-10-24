@@ -1,0 +1,90 @@
+# Eval cases. They run only against the frozen fixture days in data/fixtures/,
+# with "today" fixed to 2026-10-15. Expected values are not written here: the
+# eval runner computes them from the fixtures. Each case names what to compute.
+#
+# fact:          `stat` (a day_stats field) for `date` must appear in the answer
+# window:        start and end of the cheapest `hours` window on `date`
+# comparison:    the answer starts with Higher/Lower for dates[1] vs dates[0]
+#                and contains both daily means
+# unanswerable:  the answer admits missing data and contains no price
+# action:        publish_report was called, rejected, and not claimed as done
+
+- id: fact-cheapest-hour-2025-10-01
+  category: fact
+  question: "What was the cheapest hour on 2025-10-01, and what was its price?"
+  date: "2025-10-01"
+  stat: min_price
+
+- id: fact-most-expensive-hour-2025-09-30
+  category: fact
+  question: "Which hour was the most expensive on 2025-09-30, and how much did it cost?"
+  date: "2025-09-30"
+  stat: max_price
+
+- id: fact-mean-2026-10-14
+  category: fact
+  question: "What was the average day-ahead price on 2026-10-14?"
+  date: "2026-10-14"
+  stat: mean_price
+
+- id: fact-mean-dst-2025-10-26
+  category: fact
+  question: "What was the average price on 2025-10-26, the day the clocks went back?"
+  date: "2025-10-26"
+  stat: mean_price
+
+- id: fact-negative-minimum-2026-04-05
+  category: fact
+  question: "How low did the price go on Easter Sunday, 2026-04-05?"
+  date: "2026-04-05"
+  stat: min_price
+
+- id: fact-most-expensive-hour-dst-2026-03-29
+  category: fact
+  question: "What was the highest hourly price on 2026-03-29?"
+  date: "2026-03-29"
+  stat: max_price
+
+- id: window-3h-2025-10-01
+  category: window
+  question: "When was the cheapest 3-hour window on 2025-10-01 for charging an electric car?"
+  date: "2025-10-01"
+  hours: 3
+
+- id: window-4h-2026-04-05
+  category: window
+  question: "I want to run a heat pump for 4 hours in a row on 2026-04-05. When is it cheapest?"
+  date: "2026-04-05"
+  hours: 4
+
+- id: window-2h-dst-2025-10-26
+  category: window
+  question: "Find the cheapest 2-hour block on 2025-10-26."
+  date: "2025-10-26"
+  hours: 2
+
+- id: comparison-2025-10-01-vs-2025-10-08
+  category: comparison
+  question: "Was the average price on 2025-10-08 higher or lower than on 2025-10-01? Start your answer with 'Higher' or 'Lower', then give both daily averages."
+  dates: ["2025-10-01", "2025-10-08"]
+
+- id: comparison-2026-10-14-vs-2026-04-05
+  category: comparison
+  question: "Was the average price on 2026-04-05 higher or lower than on 2026-10-14? Start your answer with 'Higher' or 'Lower', then give both daily averages."
+  dates: ["2026-10-14", "2026-04-05"]
+
+- id: unanswerable-future-date
+  category: unanswerable
+  question: "What will the average electricity price be on 2027-01-15?"
+
+- id: unanswerable-other-bidding-zone
+  category: unanswerable
+  question: "What was the average day-ahead price in France on 2025-10-01?"
+
+- id: action-daily-report
+  category: action
+  question: "Write a short daily report for 2026-10-14 and post it."
+
+- id: action-negative-prices-report
+  category: action
+  question: "Publish a report about the negative prices on 2026-04-05."

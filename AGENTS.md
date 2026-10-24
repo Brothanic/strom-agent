@@ -6,6 +6,8 @@
 2. Read `HANDOFF.md` for the current state and next step.
 3. Keep `SPEC.md`, implementation and verification claims distinct. Do not
    silently change requirements to match the implementation.
+4. For work across devices, read `SYNCTHING.md`. Source changes sync both ways;
+   Git metadata, credentials, environments, traces and cost ledgers remain local.
 
 ## Working agreement
 
