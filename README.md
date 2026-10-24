@@ -142,7 +142,20 @@ docker run --rm -it --env-file .env \
 `strom-agent evals --model … --model …` writes
 [evals/report.md](evals/report.md) with the pass rate overall and per category,
 average tool calls, tokens and latency, total cost, and the failed cases with
-trace links. First run, 2026-10-24, 15 cases per model:
+trace links. Latest run, 2026-10-24 17:25, 15 cases per model (this is the
+run in `evals/report.md`):
+
+| Model | Passed | Avg tool calls | Avg tokens | Total cost | Avg latency |
+|---|---|---|---|---|---|
+| claude-haiku-5-5 | 15/15 | 1.3 | 4202 | €0.0040 | 4.1 s |
+| claude-sonnet-5-5 | 15/15 | 1.3 | 3849 | €0.0564 | 5.4 s |
+
+Both models passed every case in every category. Sonnet costs about 14 times
+as much as Haiku here, for no difference in results on this set.
+
+### First run and what it taught
+
+First run, 2026-10-24 17:12, before the fix described below:
 
 | Model | Passed | Avg tool calls | Avg tokens | Total cost | Avg latency |
 |---|---|---|---|---|---|
@@ -155,7 +168,7 @@ data source has no prices for that date." The regular expression for admitting
 missing data knew "no data" and "can't provide", but not "no prices" or "can't
 give". The pattern has been widened since. Re-checking all 30 recorded answers
 with the new check gives 15/15 for both models and changes no other result.
-`evals/report.md` still shows the original run.
+The second run above confirms this with fresh answers.
 
 This shows the main weakness of checking natural language with regular
 expressions: every new phrasing needs a new pattern, a game of whack-a-mole.
@@ -179,8 +192,8 @@ per-sentence regular expression.
 
 `strom-agent costs` sums `data/ledger.jsonl` by run type and model. First
 real runs (four `ask` runs with `claude-haiku-5-5`): €0.0019 in total,
-about €0.0002–0.0007 per question. First eval run: €0.0038 for Haiku and
-€0.0628 for Sonnet (15 cases each).
+about €0.0002–0.0007 per question. Two eval runs of 15 cases per model:
+€0.0078 for Haiku and €0.1193 for Sonnet. Total so far: €0.1290.
 
 ## Limitations and next steps
 
@@ -189,7 +202,7 @@ about €0.0002–0.0007 per question. First eval run: €0.0038 for Haiku and
 - English answers; prices only in EUR/MWh.
 - A run's ledger line is written after the run; two parallel runs could each
   pass the total-limit check.
-- Harder eval cases. Both models passed every case in the first run, so the
+- Harder eval cases. Both models passed every case in the latest run, so the
   set no longer tells them apart. Candidates: questions over several days or
   ranges with missing days, the repeated 02:00 hour on the autumn DST day,
   questions that tempt the model to calculate ("how many percent higher?"),

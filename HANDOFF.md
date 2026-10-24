@@ -27,7 +27,9 @@ Updated: 2026-10-24, Europe/Berlin.
   check: "can't give" / "no prices" were not in `ADMITS_MISSING`. The pattern
   was widened (plus curly apostrophes), and re-checking all 30 recorded
   answers gives 15/15 for both, with no other result changed.
-  `evals/report.md` is left as generated. The README shows both and notes an
+  A second eval run (17:25) with the widened check: 15/15 for both, Haiku
+  €0.0040, Sonnet €0.0564; `evals/report.md` is that run. Ledger total
+  €0.1290. The README shows both runs and notes an
   LLM judge for free-text checks as the better long-term fix (owner's idea).
   Sonnet: all calls ended normally, at most 576 output tokens per call.
 - **Docker image not built or tested:** Docker is not installed on this Mac.
