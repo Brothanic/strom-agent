@@ -1,12 +1,13 @@
 # Handoff
 
-Updated: 2026-10-24, Europe/Berlin.
+Updated: 2026-11-05, Europe/Berlin.
 
 ## Current state
 
 - **Build steps 1–6 implemented** (owner asked on 2026-10-20 for steps 2–6
-  without a stop between them). Nothing committed or pushed. 108 free tests pass
-  (`uv run pytest`): fixtures plus a mocked Anthropic client, no network.
+  without a stop between them). Committed and pushed; see Repository below. 108
+  free tests pass (`uv run pytest`): fixtures plus a mocked Anthropic client, no
+  network.
 - **First real runs (step 3), 2026-10-24:** the owner ran four `ask` runs with
   `claude-haiku-5-5`: one fixture question, one live window question, and the
   publish flow once rejected and once approved (written to `reports/`). Total
@@ -32,7 +33,30 @@ Updated: 2026-10-24, Europe/Berlin.
   €0.1290. The README shows both runs and notes an
   LLM judge for free-text checks as the better long-term fix (owner's idea).
   Sonnet: all calls ended normally, at most 576 output tokens per call.
-- **Docker image not built or tested:** Docker is not installed on this Mac.
+- **Docker image built and tested, 2026-11-05** (Docker Engine 29.9.3 on
+  Colima, macOS arm64; 76 MB content, 345 MB on disk). No Dockerfile change was
+  needed.
+  - `--help` works. `ask "What was the cheapest hour on 2025-10-01?" --fixtures`
+    gave 12:00 at 66.03 EUR/MWh (€0.0004).
+    `evals --model claude-haiku-5-5` gave 15/15 (€0.0036, 2.7 s average). That
+    report stayed in the container, so `evals/report.md` is still the
+    2026-10-24 comparison run.
+  - The README's mount command ran twice with a live question (2026-11-04,
+    cheapest hour 03:00 at 209.12 EUR/MWh, recomputed from the raw data and
+    correct). Ledger 64 → 65 → 66 lines, €0.128959 → €0.129341. Both traces
+    reached the host. Run 1 wrote `data/cache/DE-LU_2026-11-04.json`, and run 2
+    reused it (its mtime is from run 1). `-it` was run through `script` because
+    the test shell has no terminal.
+  - No `.env`: `.dockerignore` excludes it. Checked in all 13 image layers
+    (15,272 file entries): no `.env`-style file name, no ledger, and not the
+    API key value. The new traces do not contain the key either.
+  - `.env` has CRLF line endings; `docker --env-file` passes the values without
+    carriage returns (checked by length, no value printed).
+  - The ledger misses €0.0040: the `ask --fixtures` and eval runs had no mounts,
+    so their ledger lines were lost with the container. Actual total about
+    €0.1333.
+  - Not tested: the approval prompt in a container, and mounts on Linux (the
+    container's user is uid 1000; Colima's virtiofs mounts accepted its writes).
 - Dependencies: `anthropic` 1.16 and `pyyaml` added to `httpx` and `pydantic`
   (all from the spec's list). `strom-agent` console script in `pyproject.toml`.
 - Files: `tools.py`, `agent.py`, `budget.py`, `trace.py`, `approval.py`,
@@ -88,8 +112,8 @@ Updated: 2026-10-24, Europe/Berlin.
   max(input, cache write), plus `MAX_TOKENS` (1024) of output. Checked against
   the per-run limit and the ledger total plus this run.
 - Today's date is in the user message, not the system prompt, to keep the
-  cacheable prefix stable. The prefix is ~1k tokens. Haiku 5.5's caching
-  minimum is not known yet; check `cache_read_input_tokens` in the first runs.
+  cacheable prefix stable. The prefix is about 1,400 tokens (1,413 now), and
+  all 66 recorded runs, Haiku and Sonnet, read from the cache.
 - Haiku 5.5 has tiered prices (up to / above 100k tokens per prompt). The price
   table holds one rate per model, so the owner enters the up-to-100k tier;
   requests here are far smaller.
@@ -133,9 +157,10 @@ Updated: 2026-10-24, Europe/Berlin.
 Owner review of steps 2–6 and the Console spend limit. Re-run the report
 question once to check the prompt fixes (credit line, hour wording). A new
 eval run would regenerate `evals/report.md` with the widened check (only
-when the owner asks for it). Docker build on a machine with Docker. Harder
-eval cases are listed in the README as a next step (owner's idea), since
-both models pass the current set.
+when the owner asks for it). The approval prompt in a container is still
+untested; the report re-run above could cover both. Harder eval cases are
+listed in the README as a next step (owner's idea), since both models pass
+the current set.
 
 ## Mac VS Code environment (2026-10-15)
 

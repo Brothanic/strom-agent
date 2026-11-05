@@ -6,9 +6,9 @@ human before it acts externally, enforces a cost budget, and is measured with
 deterministic evals.
 
 **Status:** all six build steps from [SPEC.md](SPEC.md) are implemented and
-covered by free tests (mocked model, frozen fixtures). The first real runs
-with `claude-haiku-5-5` are done; the eval run is still open. See
-[HANDOFF.md](HANDOFF.md) for the current state.
+covered by free tests (mocked model, frozen fixtures). Real runs with
+`claude-haiku-5-5`, the eval runs with Haiku and Sonnet, and a test of the
+Docker image are done. See [HANDOFF.md](HANDOFF.md) for the current state.
 
 ## What it does
 
@@ -96,9 +96,9 @@ tool values.
   the exchange rate the owner configures.
 - **Prompt caching.** The system prompt and tool definitions are marked
   cacheable, and today's date goes into the user message so the prefix stays
-  identical. Cached tokens are reported separately. The prefix is roughly
-  1,000 tokens. Whether that reaches each model's caching minimum must be
-  confirmed in a real run (`cache_read_input_tokens` above zero).
+  identical. Cached tokens are reported separately. The prefix is about 1,400
+  tokens, and caching works with both models: every recorded run so far read
+  from the cache (`cache_read_input_tokens` above zero).
 - **Second safeguard.** Set a monthly spend limit in the Anthropic Console as
   well. The code's budget only protects against this program's own calls.
 
@@ -137,13 +137,25 @@ docker run --rm -it --env-file .env \
   strom-agent ask "..."
 ```
 
+Tested on 2026-11-05 with Docker Engine 29.9.3 on Colima (macOS, arm64). The
+image builds, and `--help`, one `ask --fixtures` and one
+`evals --model claude-haiku-5-5` (15/15) work. The mount command above ran
+twice: the ledger grew from 64 to 66 lines (€0.1290 to €0.1293), and the second
+run reused the price file the first run had cached. No layer of the image
+contains a `.env` file or the API key value. A `.env` with CRLF line endings
+is fine: `docker --env-file` passes the values without carriage returns.
+
+Not tested: the approval prompt inside a container (these questions published
+nothing), and mounts on Linux, where the container's user (uid 1000) needs
+write access to the mounted paths.
+
 ## Eval results
 
 `strom-agent evals --model … --model …` writes
 [evals/report.md](evals/report.md) with the pass rate overall and per category,
 average tool calls, tokens and latency, total cost, and the failed cases with
-trace links. Latest run, 2026-10-24 17:25, 15 cases per model (this is the
-run in `evals/report.md`):
+trace links. Latest comparison run, 2026-10-24 17:25, 15 cases per model (this
+is the run in `evals/report.md`):
 
 | Model | Passed | Avg tool calls | Avg tokens | Total cost | Avg latency |
 |---|---|---|---|---|---|
@@ -193,7 +205,11 @@ per-sentence regular expression.
 `strom-agent costs` sums `data/ledger.jsonl` by run type and model. First
 real runs (four `ask` runs with `claude-haiku-5-5`): €0.0019 in total,
 about €0.0002–0.0007 per question. Two eval runs of 15 cases per model:
-€0.0078 for Haiku and €0.1193 for Sonnet. Total so far: €0.1290.
+€0.0078 for Haiku and €0.1193 for Sonnet. Two more `ask` runs from the Docker
+test bring the ledger to €0.1293 over 66 runs. The ledger misses €0.0040 from
+that test: one `ask` (€0.0004) and one Haiku eval run (€0.0036) ran without
+mounts, so their ledger lines were lost with the container. Actual total so
+far: about €0.1333.
 
 ## Limitations and next steps
 
