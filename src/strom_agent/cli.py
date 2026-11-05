@@ -60,7 +60,10 @@ def run_costs() -> int:
 
     print(f"{'kind':<6} {'model':<22} {'runs':>5} {'tokens':>10} {'cost':>10}")
     for (kind, model), group in sorted(totals.items()):
-        print(f"{kind:<6} {model:<22} {group['runs']:>5} {group['tokens']:>10} €{group['cost']:>9.4f}")
+        # Format the amount first, so the padding goes before the euro sign and
+        # the sign cannot be read as belonging to the tokens column.
+        cost_text = f"€{group['cost']:.4f}"
+        print(f"{kind:<6} {model:<22} {group['runs']:>5} {group['tokens']:>10} {cost_text:>10}")
     print(f"Total: €{sum(entry['cost_eur'] for entry in entries):.4f} over {len(entries)} runs")
     return 0
 
